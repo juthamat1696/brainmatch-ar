@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OWNDAYS — 6 Brain-Based Selling Techniques</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#080F1A;--bg2:#0D1826;--card:#111D2E;
+  --gold:#C9A96E;--gold2:#E8C98A;--white:#F0F4FF;--dim:#6B7A9A;
+  --r1:#2563EB;--r2:#0D6B5E;--r3:#16803C;--r4:#C2410C;--r5:#7C3AED;--r6:#BE123C;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'Sarabun','Inter',sans-serif;color:var(--white);}
+
+/* ── CANVAS & VIDEO ── */
+#bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);z-index:0;}
+#overlay-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
+#game-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:2;}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;}
+.screen.active{display:flex;}
+
+/* ══ START SCREEN ══ */
+#start-screen{
+  background:linear-gradient(160deg,#080F1Aee,#0D1826ee);
+  backdrop-filter:blur(8px);
+  gap:20px;padding:32px 24px;
+}
+.start-bg-deco{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+}
+/* grid lines */
+.start-bg-deco::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(201,169,110,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(201,169,110,.06) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black,transparent);
+}
+.logo-row{display:flex;align-items:center;gap:10px;z-index:1;}
+.logo-box{width:40px;height:40px;border-radius:10px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#080F1A;}
+.logo-txt{font-size:12px;font-weight:700;letter-spacing:3px;color:var(--gold);font-family:'Inter',sans-serif;}
+.brain-orb{font-size:72px;animation:orb-float 3s ease infinite alternate;filter:drop-shadow(0 0 20px #7C3AED88);z-index:1;}
+@keyframes orb-float{from{transform:translateY(0) rotate(-5deg);}to{transform:translateY(-16px) rotate(5deg);}}
+.game-title{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--gold);font-family:'Inter',sans-serif;text-align:center;z-index:1;}
+.game-name{font-size:28px;font-weight:900;text-align:center;line-height:1.2;z-index:1;font-family:'Inter',sans-serif;}
+.game-name span{color:var(--gold);}
+.game-sub{font-size:15px;color:var(--dim);text-align:center;z-index:1;}
+
+/* brain pills on start */
+.brain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:380px;z-index:1;}
+.b-pill{border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);text-align:center;}
+.b-pill-icon{font-size:20px;margin-bottom:3px;}
+.b-pill-name{font-size:9px;font-weight:700;font-family:'Inter',sans-serif;letter-spacing:.5px;opacity:.8;}
+
+/* how to play */
+.howto{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 16px;width:100%;max-width:380px;z-index:1;}
+.howto-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--gold);font-family:'Inter',sans-serif;margin-bottom:8px;}
+.howto-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;font-size:12px;color:var(--dim);}
+.howto-item span:first-child{font-size:16px;flex-shrink:0;}
+
+#start-btn{
+  width:100%;max-width:380px;padding:16px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#080F1A;font-family:'Sarabun','Inter',sans-serif;font-size:16px;font-weight:700;cursor:pointer;
+  box-shadow:0 8px 32px rgba(201,169,110,.3);transition:.2s;z-index:1;
+}
+#start-btn:disabled{opacity:.4;cursor:not-allowed;}
+#start-btn:not(:disabled):active{transform:scale(.97);}
+.cam-status{font-size:12px;color:var(--dim);z-index:1;}
+
+/* ══ HUD ══ */
+#hud{
+  position:fixed;top:0;left:0;right:0;
+  display:none;align-items:center;justify-content:space-between;
+  padding:env(safe-area-inset-top,12px) 16px 12px;
+  z-index:20;pointer-events:none;
+}
+#hud.show{display:flex;}
+.hud-box{
+  background:rgba(8,15,26,.75);backdrop-filter:blur(12px);
+  border:1px solid rgba(201,169,110,.2);border-radius:12px;
+  padding:8px 14px;display:flex;flex-direction:column;align-items:center;
+}
+.hud-val{font-size:22px;font-weight:900;color:var(--gold);font-family:'Inter',sans-serif;line-height:1;transition:transform .15s,color .15s;}
+.hud-val.flash-score{transform:scale(1.4);color:#4ade80;}
+.hud-lbl{font-size:9px;color:var(--dim);font-family:'Inter',sans-serif;letter-spacing:.5px;margin-top:2px;}
+.hud-mid{flex:1;text-align:center;}
+.hud-brain{font-size:11px;color:var(--dim);font-family:'Inter',sans-serif;}
+
+/* ══ DROP ZONES ══ */
+#zones{
+  position:fixed;
+  bottom:env(safe-area-inset-bottom, 0px);
+  bottom:max(env(safe-area-inset-bottom, 0px), 0px);
+  left:0;right:0;
+  display:none;flex-direction:row;z-index:15;
+  padding:0;height:110px;
+  /* Extra bottom padding for macOS Dock / iOS home bar */
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+#zones.show{display:flex;}
+.zone{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-top:3px solid;gap:3px;cursor:pointer;
+  transition:transform .12s ease, box-shadow .15s ease, background .1s;
+  position:relative;overflow:hidden;
+  transform-origin: bottom center;
+  backdrop-filter: blur(8px);
+}
+.zone::before{content:'';position:absolute;inset:0;opacity:.15;}
+.zone-icon{font-size:26px;line-height:1;margin-bottom:2px;}
+.zone-name{font-size:11px;font-weight:800;font-family:'Inter',sans-serif;letter-spacing:.3px;text-align:center;line-height:1.2;margin-bottom:1px;}
+.zone-keyword{font-size:9px;font-weight:700;font-family:'Inter',sans-serif;opacity:.75;text-align:center;letter-spacing:.2px;}
+.zone-desc{font-size:8px;color:rgba(255,255,255,.45);font-family:'Sarabun',sans-serif;text-align:center;line-height:1.3;padding:0 4px;display:none;}
+@media(min-height:600px){.zone-desc{display:block;}}
+.zone.pop{animation:zone-pop .35s cubic-bezier(.175,.885,.32,1.275);}
+.zone.shake{animation:zone-shake .35s ease;}
+@keyframes zone-pop{0%,100%{transform:scaleY(1);}50%{transform:scaleY(1.06);}}
+@keyframes zone-shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+/* ══ FLOATING TEXT ══ */
+.float-txt{
+  position:fixed;font-size:32px;font-weight:900;font-family:'Inter',sans-serif;
+  pointer-events:none;z-index:50;white-space:nowrap;
+  text-shadow:0 2px 12px rgba(0,0,0,.8);
+  animation:float-up 1.8s ease-out forwards;
+  transform:translate(-50%,-50%);
+}
+@keyframes float-up{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(1.3);}
+  20%{opacity:1;transform:translate(-50%,-70%) scale(1);}
+  100%{opacity:0;transform:translate(-50%,-160%) scale(.9);}
+}
+
+/* Full-screen flash feedback */
+.screen-flash{
+  position:fixed;inset:0;z-index:45;pointer-events:none;
+  opacity:0;animation:flash-fade .6s ease-out forwards;
+}
+@keyframes flash-fade{0%{opacity:.35;}100%{opacity:0;}}
+
+/* ══ CURSOR ══ */
+#cursor{position:fixed;font-size:36px;pointer-events:none;z-index:25;transform:translate(-50%,-50%);transition:transform .08s;will-change:transform;}
+
+/* ══ RESULT SCREEN ══ */
+#result-screen{
+  background:linear-gradient(160deg,#080F1Aee,#0D1826ee);
+  backdrop-filter:blur(16px);padding:24px;gap:16px;overflow-y:auto;
+}
+.cert{
+  width:100%;max-width:420px;
+  background:linear-gradient(160deg,#111D2E,#0D1826);
+  border:1px solid rgba(201,169,110,.3);border-radius:20px;
+  padding:28px 24px;position:relative;overflow:hidden;
+}
+.cert::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,169,110,.08), transparent);
+}
+.cert-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.cert-logo{width:32px;height:32px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#080F1A;font-family:'Inter',sans-serif;}
+.cert-brand{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);font-family:'Inter',sans-serif;}
+.cert-title{font-size:20px;font-weight:900;text-align:center;line-height:1.2;margin-bottom:4px;}
+.cert-sub{font-size:12px;color:var(--dim);text-align:center;margin-bottom:20px;}
+.cert-name-wrap{border-bottom:1px dashed rgba(255,255,255,.2);margin-bottom:20px;padding-bottom:8px;text-align:center;}
+.cert-name-label{font-size:10px;color:var(--dim);margin-bottom:4px;font-family:'Inter',sans-serif;letter-spacing:.5px;}
+#player-name{
+  background:none;border:none;outline:none;
+  color:var(--white);font-family:'Sarabun','Inter',sans-serif;font-size:20px;font-weight:700;
+  text-align:center;width:100%;
+}
+.cert-score-row{display:flex;justify-content:center;gap:24px;margin-bottom:16px;}
+.cert-stat{text-align:center;}
+.cert-stat-val{font-size:44px;font-weight:900;color:var(--gold);font-family:'Inter',sans-serif;line-height:1;}
+.cert-stat-lbl{font-size:10px;color:var(--dim);font-family:'Inter',sans-serif;}
+.cert-grade{
+  text-align:center;padding:8px;border-radius:10px;
+  font-size:14px;font-weight:700;margin-bottom:16px;
+  font-family:'Inter',sans-serif;
+}
+.cert-brain-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+.cert-brain-item{background:rgba(255,255,255,.04);border-radius:8px;padding:6px 4px;text-align:center;border:1px solid rgba(255,255,255,.06);}
+.cert-brain-icon{font-size:16px;}
+.cert-brain-name{font-size:7px;color:var(--dim);font-family:'Inter',sans-serif;margin-top:1px;}
+.cert-brain-score{font-size:11px;font-weight:700;color:var(--gold);font-family:'Inter',sans-serif;}
+.cert-footer{font-size:9px;color:var(--dim);text-align:center;font-family:'Inter',sans-serif;letter-spacing:.3px;margin-top:8px;}
+.restart-btn{
+  width:100%;max-width:420px;padding:15px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#080F1A;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;
+  box-shadow:0 6px 24px rgba(201,169,110,.25);
+}
+.restart-btn:active{transform:scale(.97);}
+
+/* ══ PARTICLES ══ */
+.ptcl{position:fixed;pointer-events:none;font-size:16px;z-index:35;
+  animation:ptcl-up 1.3s ease-out forwards;}
+@keyframes ptcl-up{0%{opacity:1;transform:translateY(0) scale(.8);}100%{opacity:0;transform:translateY(-100px) scale(1.2);}}
+
+/* loading ring */
+.loading-ring{width:24px;height:24px;border:2px solid rgba(201,169,110,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<!-- VIDEO + CANVAS -->
+<video id="bg-video" autoplay playsinline muted></video>
+<canvas id="overlay-canvas"></canvas>
+<canvas id="game-canvas"></canvas>
+
+<!-- CURSOR -->
+<div id="cursor">🖐️</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-box">
+    <div class="hud-val" id="hud-time">90</div>
+    <div class="hud-lbl">วินาที</div>
+  </div>
+  <div class="hud-mid">
+    <div class="hud-brain" id="hud-mode">Brain Match AR</div>
+  </div>
+  <div class="hud-box">
+    <div class="hud-val" id="hud-score">0</div>
+    <div class="hud-lbl">คะแนน</div>
+  </div>
+</div>
+<!-- Pinch debug indicator (visible during gameplay) -->
+<div id="pinch-debug" style="position:fixed;bottom:108px;left:50%;transform:translateX(-50%);
+  z-index:25;font-size:11px;font-family:monospace;color:#C9A96E;
+  background:rgba(0,0,0,.55);padding:3px 10px;border-radius:8px;pointer-events:none;display:none;">
+</div>
+
+<!-- DROP ZONES — 3 zones, built dynamically by JS each round -->
+<div id="zones">
+  <!-- filled by buildZones() -->
+</div>
+
+<!-- START SCREEN -->
+<div id="start-screen" class="screen active">
+  <div class="start-bg-deco"></div>
+
+  <div class="logo-row">
+    <div class="logo-box">OD</div>
+    <div class="logo-txt">L&D DEPARTMENT</div>
+  </div>
+
+  <div class="brain-orb">🧠</div>
+
+  <div style="z-index:1;text-align:center">
+    <div class="game-title">6 BRAIN-BASED SELLING TECHNIQUES</div>
+    <div class="game-name">Brain<span> Match</span> AR</div>
+    <div class="game-sub">คุณเข้าใจสมองลูกค้าดีแค่ไหน?</div>
+  </div>
+
+  <div class="brain-grid">
+    <div class="b-pill"><div class="b-pill-icon">🦎</div><div class="b-pill-name" style="color:#93BBFF">Reptilian</div></div>
+    <div class="b-pill"><div class="b-pill-icon">🎯</div><div class="b-pill-name" style="color:#6EDFD2">Limbic</div></div>
+    <div class="b-pill"><div class="b-pill-icon">📖</div><div class="b-pill-name" style="color:#86EFAC">Oxytocin</div></div>
+    <div class="b-pill"><div class="b-pill-icon">⚡</div><div class="b-pill-name" style="color:#FDBA74">Visual Cortex</div></div>
+    <div class="b-pill"><div class="b-pill-icon">🔔</div><div class="b-pill-name" style="color:#C4B5FD">Hippocampus</div></div>
+    <div class="b-pill"><div class="b-pill-icon">🎮</div><div class="b-pill-name" style="color:#FCA5A5">Prefrontal</div></div>
+  </div>
+
+  <div class="howto">
+    <div class="howto-title">วิธีเล่น</div>
+    <div class="howto-item"><span>🤌</span><span>จีบนิ้วโป้ง+นิ้วชี้เพื่อหยิบการ์ดประโยค</span></div>
+    <div class="howto-item"><span>📦</span><span>ลากไปปล่อยในกล่องสมองที่ถูกต้องด้านล่าง</span></div>
+    <div class="howto-item"><span>🖱️</span><span>หรือใช้เมาส์ / นิ้วแตะหน้าจอแทนได้</span></div>
+    <div class="howto-item"><span>⏱️</span><span>90 วินาที — จับคู่ให้ได้มากที่สุด!</span></div>
+  </div>
+
+  <button id="start-btn" disabled>
+    <span class="loading-ring"></span> กำลังโหลดกล้อง...
+  </button>
+  <div class="cam-status" id="cam-status">กำลังเปิดกล้อง...</div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen" class="screen">
+  <div class="cert" id="cert-card">
+    <div class="cert-header">
+      <div class="cert-logo">OD</div>
+      <div>
+        <div class="cert-brand">OWNDAYS THAILAND</div>
+        <div style="font-size:9px;color:var(--dim);font-family:'Inter',sans-serif">L&D Department · Training Achievement</div>
+      </div>
+    </div>
+
+    <div class="cert-title">🧠 Brain Master</div>
+    <div class="cert-sub">คุณเข้าใจสมองลูกค้าแล้ว!</div>
+
+    <div class="cert-name-wrap">
+      <div class="cert-name-label">ADVISOR NAME</div>
+      <input type="text" id="player-name" placeholder="พิมพ์ชื่อของคุณที่นี่..." maxlength="40"/>
+    </div>
+
+    <div class="cert-score-row">
+      <div class="cert-stat">
+        <div class="cert-stat-val" id="r-score">0</div>
+        <div class="cert-stat-lbl">คะแนน</div>
+      </div>
+      <div class="cert-stat">
+        <div class="cert-stat-val" id="r-correct">0</div>
+        <div class="cert-stat-lbl">ถูก</div>
+      </div>
+      <div class="cert-stat">
+        <div class="cert-stat-val" id="r-wrong">0</div>
+        <div class="cert-stat-lbl">ผิด</div>
+      </div>
+    </div>
+
+    <div class="cert-grade" id="r-grade"></div>
+
+    <div class="cert-brain-summary" id="r-brain-summary"></div>
+
+    <div class="cert-footer">OWNDAYS Thailand · L&D Department · Brain-Based Selling Training</div>
+  </div>
+
+  <button class="restart-btn" onclick="restartGame()">▶ เล่นอีกครั้ง</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════
+const ITEMS = [
+  {w:'คุณลูกค้าเคยรู้สึกตาล้าช่วงบ่ายในวันทำงานไหมคะ?',era:'reptilian'},
+  {w:'ไม่ต้องกังวลเรื่องแว่นหลุดเวลาออกกำลังกาย ขาแว่นรุ่นนี้เกาะกระชับรับทรงศีรษะพอดี',era:'reptilian'},
+  {w:'เวลาเหงื่อออก เคยไหมครับที่แว่นชอบไหลลงมาอยู่ที่ปลายจมูกบ่อยๆ',era:'reptilian'},
+  {w:'ถ้าปล่อยให้ดวงตาสัมผัสแสง UV นานๆ อาจเสี่ยงต่อภาวะตาแห้งเรื้อรังได้นะครับ',era:'reptilian'},
+  {w:'หลังเปลี่ยนเป็นเลนส์โปรเกรสซีฟ ลูกค้าหลายคนบอกว่าไม่ต้องพกแว่นหลายตัวเลยค่ะ',era:'limbic'},
+  {w:'ใส่ทรงนี้แล้วช่วยเสริมลุคให้ดูน่าเชื่อถือ เหมาะมากเวลาไปนำเสนองานกับผู้ใหญ่',era:'limbic'},
+  {w:'ใส่ตัวนี้แล้วเพื่อนๆ ต้องทักแน่นอนว่าทำไมหน้าดูเด็กลงและสดใสขึ้น',era:'limbic'},
+  {w:'สบายใจได้เลยครับ ด้วยประกัน OWNDAYS 1 ปีเต็ม ดูแลให้คุณลูกค้าอุ่นใจได้ 100%',era:'limbic'},
+  {w:'เมื่อวานมีคุณแม่พาลูกมา กังวลเรื่องขาแว่นหักง่าย พอเห็นรุ่นนี้เปลี่ยนใจตกลงทันที',era:'oxytocin'},
+  {w:'ลูกค้าที่ลังเลเรื่องทรงแว่น พอลองใส่ตามที่แนะนำ ติดใจไม่กลับไปใช้ทรงเดิมอีกเลย',era:'oxytocin'},
+  {w:'สัปดาห์ก่อนมีลูกค้าคุณหมอกังวลเรื่องมึนหัว แต่พอลองรุ่นนี้ พาคุณแม่มาตัดเพิ่มอีกคู่เลย',era:'oxytocin'},
+  {w:'เข้าใจค่ะว่ากังวลเรื่องราคา มีลูกค้าที่ซื้อแว่นถูกมาก่อน สุดท้ายต้องมาตัดใหม่ที่นี่อยู่ดี',era:'oxytocin'},
+  {w:'ลองดูกระจกเทียบกันดูก่อนครับ กรอบใสฝั่งซ้ายช่วยให้ใบหน้าดูสว่างและทันสมัยขึ้นทันที',era:'visual'},
+  {w:'อันนี้หนา 1.60 ส่วนอันนี้ Double Aspherics ลองวางคู่กันจะเห็นความต่างของขอบเลนส์ชัดเลย',era:'visual'},
+  {w:'ลองหยิบกรอบโลหะเทียบกับกรอบ Ultem บนมือสองข้าง จะรู้สึกได้ทันทีว่าเบากว่าเกินครึ่ง',era:'visual'},
+  {w:'ฝั่งซ้ายแสงสะท้อนเข้าตาเวลาถ่ายรูป ฝั่งขวา Pure Coat ของ OWNDAYS ไม่มีเงาสะท้อนเลยครับ',era:'visual'},
+  {w:'โดยสรุป เลนส์ชุดนี้ช่วย 2 เรื่องหลัก คือลดปวดตา และกันแสงสีฟ้า ครบจบในตัวเดียวครับ',era:'hippocampus'},
+  {w:'Welcome to OWNDAYS! วันนี้คุณลูกค้าอยากให้ช่วยเหลือด้านไหนดีครับ',era:'hippocampus'},
+  {w:'สวัสดีค่ะ! คุณลูกค้าที่มาเมื่อวานใช่มั้ยคะ เป้าหมายวันนี้คือหาแว่นเบาที่ช่วยลดแสบตา',era:'hippocampus'},
+  {w:'เรื่องสำคัญที่คุณลูกค้าเน้นย้ำตอนแรกคือ "ต้องไม่ปวดดั้ง" ผมขอแนะนำ 2 รุ่นนี้ครับ',era:'hippocampus'},
+  {w:'สิ่งแรกที่คุณลูกค้าถามถึงคือแว่นยืดหยุ่นไม่หักง่าย เรามาเริ่มจากรุ่นทนทานสุดก่อนเลย',era:'hippocampus'},
+  {w:'โจทย์ที่กังวลมากที่สุดคือ "กลัวใส่โปรเกรสซีฟแล้วมึนหัว" เดี๋ยวอธิบายวิธีปรับตัวก่อนเลย',era:'hippocampus'},
+  {w:'ระหว่างสีดำคลาสสิกกับสีน้ำตาลลายกระ คุณลูกค้าชอบสไตล์ไหนมากกว่ากันครับ?',era:'prefrontal'},
+  {w:'เตรียมตัวเลือกไว้ 2 แบบ แบบแรกเน้นความเบา ส่วนแบบสองเน้นความสปอร์ตยืดหยุ่น',era:'prefrontal'},
+  {w:'ลองพิจารณาดูครับ ระหว่างกรอบพลาสติกเบาสุดๆ กับกรอบไทเทเนียมทนทานเรียบหรู',era:'prefrontal'},
+  {w:'ขออนุญาตให้ข้อมูลและเปรียบเทียบข้อดีข้อเสียก่อนนะคะ ส่วนตัวไหนดีที่สุด ให้คุณลูกค้าเคาะได้เลย',era:'prefrontal'},
+];
+
+const BRAIN_META = {
+  reptilian:  {icon:'🦎',color:'#2563EB',light:'#93BBFF',name:'Reptilian Brain',
+    keyword:'Self-Preservation',desc:'ตอบสนองต่อ Pain Point และความอยู่รอด'},
+  limbic:     {icon:'🎯',color:'#0D6B5E',light:'#6EDFD2',name:'Limbic System',
+    keyword:'Sell Outcomes',desc:'ขายผลลัพธ์ เชื่อมอารมณ์ ไม่ใช่ขายสินค้า'},
+  oxytocin:   {icon:'📖',color:'#16803C',light:'#86EFAC',name:'Oxytocin / Amygdala',
+    keyword:'Storytelling',desc:'เล่าเรื่องจริง ปล่อย Oxytocin ลดการ์ด'},
+  visual:     {icon:'⚡',color:'#C2410C',light:'#FDBA74',name:'Visual Cortex',
+    keyword:'Before vs After',desc:'แสดงให้เห็น เปรียบเทียบชัดๆ ให้สมองเลือกเอง'},
+  hippocampus:{icon:'🔔',color:'#7C3AED',light:'#C4B5FD',name:'Hippocampus',
+    keyword:'Primacy & Recency',desc:'เปิดแรง ปิดแรง สมองจำต้น-ท้ายดีที่สุด'},
+  prefrontal: {icon:'🎮',color:'#BE123C',light:'#FCA5A5',name:'Prefrontal Cortex',
+    keyword:'Autonomy',desc:'ให้เลือก A หรือ B ลูกค้ารู้สึกว่าตัดสินใจเอง'},
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+let gameActive = false;
+let timeLeft = 90, score = 0, correct = 0, wrong = 0;
+let timerInterval = null;
+let fallingCards = [];
+let dragCard = null;
+let dragOffX = 0, dragOffY = 0;
+let pinchX = 0, pinchY = 0, isPinching = false;
+let cursorX = window.innerWidth/2, cursorY = window.innerHeight/2;
+const brainScores = {reptilian:0,limbic:0,oxytocin:0,visual:0,hippocampus:0,prefrontal:0};
+
+// ═══════════════════════════════════════════════════════════════════════
+// CANVAS SETUP
+// ═══════════════════════════════════════════════════════════════════════
+const gameCanvas = document.getElementById('game-canvas');
+const gctx = gameCanvas.getContext('2d');
+const overlayCanvas = document.getElementById('overlay-canvas');
+const octx = overlayCanvas.getContext('2d');
+
+function resizeCanvases(){
+  gameCanvas.width = overlayCanvas.width = window.innerWidth;
+  gameCanvas.height = overlayCanvas.height = window.innerHeight;
+}
+resizeCanvases();
+window.addEventListener('resize', resizeCanvases);
+
+// ═══════════════════════════════════════════════════════════════════════
+// CAMERA
+// ═══════════════════════════════════════════════════════════════════════
+const video = document.getElementById('bg-video');
+let cameraReady = false;
+
+async function initCamera(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}}
+    });
+    video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      cameraReady = true;
+      document.getElementById('start-btn').disabled = false;
+      document.getElementById('start-btn').innerHTML = '▶ เริ่มเล่น';
+      document.getElementById('cam-status').textContent = 'กล้องพร้อมแล้ว ✓';
+    };
+  }catch(e){
+    cameraReady = true;
+    document.getElementById('start-btn').disabled = false;
+    document.getElementById('start-btn').innerHTML = '▶ เริ่มเล่น (ไม่มีกล้อง)';
+    document.getElementById('cam-status').textContent = 'ใช้เมาส์/สัมผัสแทนได้';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MEDIAPIPE HAND TRACKING
+// ═══════════════════════════════════════════════════════════════════════
+let hands = null;
+
+function initMediaPipe(){
+  try{
+    const H = window.Hands;
+    if(!H) return;
+    hands = new H({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+    hands.setOptions({maxNumHands:1,modelComplexity:0,minDetectionConfidence:.7,minTrackingConfidence:.5});
+    hands.onResults(onHandResults);
+    const cam = new window.Camera(video,{
+      onFrame: async()=>{ if(hands && gameActive) await hands.send({image:video}); },
+      width:640,height:480
+    });
+    cam.start();
+  }catch(e){}
+}
+
+// ── Pinch config (tuned for real-world use) ──────────────────────────
+const PINCH_ON_PX  = 55;   // pixel distance to START pinch (generous)
+const PINCH_OFF_PX = 95;   // pixel distance to RELEASE pinch (wider = harder to accidentally drop)
+const PINCH_SMOOTH = 4;    // frames to smooth
+let pinchHistory = [];
+let pinchFramesSincePickup = 0;
+
+function onHandResults(results){
+  octx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
+
+  if(!results.multiHandLandmarks || !results.multiHandLandmarks.length){
+    pinchHistory = [];
+    if(dragCard){ dragCard.held=false; dragCard=null; }
+    isPinching = false;
+    return;
+  }
+
+  const lm = results.multiHandLandmarks[0];
+  drawHandSkeleton(lm);
+
+  // Canvas is full viewport — landmarks are 0..1, mirror on X
+  const W = overlayCanvas.width;
+  const H = overlayCanvas.height;
+
+  const thumb = lm[4], idx = lm[8];
+  const tx = (1 - thumb.x) * W,  ty = thumb.y * H;
+  const ix = (1 - idx.x)   * W,  iy = idx.y   * H;
+
+  // Smooth the raw pixel distance over a few frames
+  const rawDist = Math.hypot(tx - ix, ty - iy);
+  pinchHistory.push(rawDist);
+  if(pinchHistory.length > PINCH_SMOOTH) pinchHistory.shift();
+  const dist = pinchHistory.reduce((a,b)=>a+b,0) / pinchHistory.length;
+
+  // Midpoint between thumb tip and index tip = grab point
+  const gx = (tx + ix) / 2;
+  const gy = (ty + iy) / 2;
+  cursorX = gx;  cursorY = gy;
+  pinchX  = gx;  pinchY  = gy;
+
+  // Hysteresis: loose ON threshold, wider OFF threshold
+  const wasPinching = isPinching;
+  if (!isPinching && dist < PINCH_ON_PX)  isPinching = true;
+  if ( isPinching && dist > PINCH_OFF_PX) isPinching = false;
+
+  // Update visible cursor
+  const cursor = document.getElementById('cursor');
+  cursor.textContent = isPinching ? '🤌' : '🖐️';
+  cursor.style.left = gx + 'px';
+  cursor.style.top  = gy + 'px';
+
+  // Debug bar
+  const dbg = document.getElementById('pinch-debug');
+  if(dbg){
+    const holdInfo = dragCard ? ` | card→${activeZoneKeys[getZoneAtPos(dragCard.x, dragCard.y+CARD_H/2)]||'—'}` : '';
+    dbg.textContent = `dist:${dist.toFixed(0)}px ${isPinching?'🤌PINCH':'✋open'}${holdInfo}`;
+    dbg.style.color = isPinching ? '#4ade80' : '#C9A96E';
+  }
+
+  // ── GRAB LOGIC ────────────────────────────────────────────────────
+  if(isPinching){
+    if(!dragCard){
+      handlePickup(gx, gy); // retry every frame while pinching
+    } else {
+      // Smoothly move card with hand
+      dragCard.x = gx - dragOffX;
+      dragCard.y = gy - dragOffY;
+      // Highlight zone card is hovering over
+      const zi = getZoneAtPos(dragCard.x, dragCard.y + CARD_H/2);
+      if(zi !== hoverZoneIdx){
+        // Remove old highlight
+        document.querySelectorAll('.zone').forEach(z=>z.style.transform='');
+        hoverZoneIdx = zi;
+        if(zi >= 0){
+          const keys = Object.keys(BRAIN_META);
+          const zEl = document.getElementById('zone-'+keys[zi]);
+          if(zEl) zEl.style.transform = 'scaleY(1.08)';
+        }
+      }
+    }
+    pinchFramesSincePickup++;
+  } else {
+    // Not pinching — clear hover
+    if(hoverZoneIdx >= 0){
+      document.querySelectorAll('.zone').forEach(z=>z.style.transform='');
+      hoverZoneIdx = -1;
+    }
+  }
+
+  // Release: only on pinch-OFF transition
+  if(wasPinching && !isPinching){
+    handleDrop(gx, gy);
+    pinchFramesSincePickup = 0;
+  }
+
+  // Safety reset
+  if(isPinching && !dragCard && pinchFramesSincePickup > 150){
+    pinchFramesSincePickup = 0;
+  }
+}
+
+function drawHandSkeleton(lm){
+  const W = overlayCanvas.width, H = overlayCanvas.height;
+  const CONNECTIONS = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+  octx.strokeStyle='#C9A96E'; octx.lineWidth=2.5;
+  CONNECTIONS.forEach(([a,b])=>{
+    octx.beginPath();
+    octx.moveTo((1-lm[a].x)*W, lm[a].y*H);
+    octx.lineTo((1-lm[b].x)*W, lm[b].y*H);
+    octx.stroke();
+  });
+  lm.forEach((p,i)=>{
+    const x=(1-p.x)*W, y=p.y*H;
+    octx.beginPath();
+    octx.arc(x,y,i===4||i===8?7:4,0,Math.PI*2);
+    octx.fillStyle=i===4||i===8?'#E8C98A':'#fff';
+    octx.fill();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FALLING CARDS  (one card at a time)
+// ═══════════════════════════════════════════════════════════════════════
+const CARD_W = Math.min(280, window.innerWidth * 0.58);
+const CARD_H = 100;
+const SPAWN_INTERVAL = 2800;
+let spawnTimer = null;
+let pool = [];
+
+// Current 3 active zone era keys (set each round)
+let activeZoneKeys = [];
+
+function buildZones(cardEra){
+  // Always include the card's correct era + 2 random different eras
+  const allKeys = Object.keys(BRAIN_META);
+  const others = allKeys.filter(k => k !== cardEra).sort(()=>Math.random()-.5).slice(0,2);
+  activeZoneKeys = [cardEra, ...others].sort(()=>Math.random()-.5); // shuffle so correct isn't always same pos
+
+  const zonesEl = document.getElementById('zones');
+  zonesEl.innerHTML = '';
+  activeZoneKeys.forEach(key => {
+    const m = BRAIN_META[key];
+    const div = document.createElement('div');
+    div.className = 'zone';
+    div.id = 'zone-'+key;
+    div.dataset.era = key;
+    div.style.borderColor = m.color;
+    div.style.background = m.color.replace('#','rgba(') + ',0.12)';
+    // parse hex to rgb properly
+    const r=parseInt(m.color.slice(1,3),16), g=parseInt(m.color.slice(3,5),16), b=parseInt(m.color.slice(5,7),16);
+    div.style.background = `rgba(${r},${g},${b},0.12)`;
+    div.innerHTML = `
+      <div class="zone-icon">${m.icon}</div>
+      <div class="zone-name" style="color:${m.light}">${m.name.replace(' ','<br>')}</div>
+      <div class="zone-keyword" style="color:${m.light}">${m.keyword}</div>
+      <div class="zone-desc">${m.desc}</div>`;
+    zonesEl.appendChild(div);
+  });
+}
+
+function shufflePool(){
+  pool = [...ITEMS].sort(()=>Math.random()-.5);
+}
+
+function spawnCard(){
+  if(!gameActive) return;
+  if(fallingCards.length > 0) return; // one card at a time
+  if(pool.length===0) shufflePool();
+  const item = pool.pop();
+  const margin = CARD_W/2 + 16;
+  const x = margin + Math.random()*(window.innerWidth - margin*2);
+  fallingCards.push({
+    id: Date.now()+Math.random(),
+    text: item.w, era: item.era,
+    x, y: -CARD_H, speed: 0.55, held: false,
+  });
+  // Build 3 zones: always include the correct era + 2 random
+  buildZones(item.era);
+}
+
+function handlePickup(mx, my){
+  if(!gameActive || dragCard) return;
+  // Very generous hit area — hand tracking jitters, card must be easy to grab
+  const padX = CARD_W * 0.6;
+  const padY = CARD_H * 0.8;
+  for(let i=fallingCards.length-1;i>=0;i--){
+    const c = fallingCards[i];
+    if(Math.abs(mx - c.x) < padX && Math.abs(my - c.y) < padY){
+      dragCard = c;
+      c.held = true;
+      dragOffX = mx - c.x;
+      dragOffY = my - c.y;
+      // Clamp offset so card doesn't jump far from hand
+      dragOffX = Math.max(-CARD_W/2, Math.min(CARD_W/2, dragOffX));
+      dragOffY = Math.max(-CARD_H/2, Math.min(CARD_H/2, dragOffY));
+      break;
+    }
+  }
+}
+
+// Track whether card is hovering over a zone (shown as highlight)
+let hoverZoneIdx = -1;
+
+function getZoneAtPos(cx, cy){
+  const zoneTopY = window.innerHeight - 150;
+  if(cy < zoneTopY) return -1;
+  // 3 zones now
+  const idx = Math.min(2, Math.max(0, Math.floor(cx / (window.innerWidth / 3))));
+  return idx; // returns 0,1,2 — map to activeZoneKeys[idx]
+}
+
+function handleDrop(mx, my){
+  if(!dragCard) return;
+
+  const cardCX = dragCard.x;
+  const cardCY = dragCard.y + CARD_H / 2;
+
+  const zoneByCard = getZoneAtPos(cardCX, cardCY);
+  const zoneByHand = getZoneAtPos(mx, my);
+  const zoneIdx = zoneByCard >= 0 ? zoneByCard : zoneByHand;
+
+  if(zoneIdx >= 0 && activeZoneKeys[zoneIdx]){
+    checkAnswer(dragCard, activeZoneKeys[zoneIdx], mx, my);
+  } else {
+    dragCard.held = false;
+    dragCard = null;
+  }
+  hoverZoneIdx = -1;
+}
+
+function checkAnswer(card, droppedEra, mx, my){
+  const zoneEl = document.getElementById('zone-'+droppedEra);
+  if(droppedEra===card.era){
+    score+=10; correct++;
+    brainScores[droppedEra]++;
+    document.getElementById('hud-score').textContent=score;
+    // Score flash
+    const sv=document.getElementById('hud-score');
+    sv.classList.add('flash-score');
+    setTimeout(()=>sv.classList.remove('flash-score'),300);
+    // Big text feedback
+    floatText('✅ +10 ถูกต้อง!', mx, my, '#4ade80');
+    if(zoneEl){
+      zoneEl.classList.add('pop');
+      zoneEl.style.background='rgba(74,222,128,.35)';
+      setTimeout(()=>{ zoneEl.classList.remove('pop'); zoneEl.style.background=''; },600);
+    }
+    spawnParticles(mx,my);
+    fallingCards=fallingCards.filter(c=>c!==card);
+    dragCard=null;
+    setTimeout(spawnCard, 800);
+  } else {
+    wrong++;
+    // Wrong feedback — no reveal of correct answer
+    floatText('❌ ลองใหม่!', mx, my, '#f87171');
+    if(zoneEl){
+      zoneEl.classList.add('shake');
+      zoneEl.style.background='rgba(248,113,113,.3)';
+      setTimeout(()=>{ zoneEl.classList.remove('shake'); zoneEl.style.background=''; },600);
+    }
+    card.held=false;
+    card.speed=0;
+    setTimeout(()=>{
+      card.x = CARD_W/2+16 + Math.random()*(window.innerWidth-CARD_W-32);
+      card.y = -CARD_H;
+      card.speed = 0.55;
+    }, 800);
+    dragCard=null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER LOOP
+// ═══════════════════════════════════════════════════════════════════════
+let animFrame = null;
+
+function renderLoop(){
+  gctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+  if(!gameActive){ animFrame=requestAnimationFrame(renderLoop); return; }
+
+  const H = gameCanvas.height;
+  const zoneTopY = H - 100;
+
+  // Update + Draw cards
+  fallingCards.forEach(card=>{
+    if(!card.held) card.y += card.speed;
+
+    // If card reaches zone boundary without being held, loop back to top
+    if(!card.held && card.y > zoneTopY - 10){
+      card.y = -CARD_H;
+      card.x = CARD_W/2+16 + Math.random()*(window.innerWidth - CARD_W - 32);
+    }
+
+    // Clamp held card so it stays in visible area
+    if(card.held){
+      card.x = Math.max(CARD_W/2, Math.min(window.innerWidth - CARD_W/2, card.x));
+      card.y = Math.max(CARD_H/2, Math.min(window.innerHeight - 50, card.y));
+    }
+
+    drawCard(card);
+  });
+
+  // Cursor follow for mouse mode
+  const cursor = document.getElementById('cursor');
+  if(!hands){
+    cursor.style.left = cursorX+'px';
+    cursor.style.top = cursorY+'px';
+  }
+
+  animFrame = requestAnimationFrame(renderLoop);
+}
+
+function drawCard(card){
+  const x=card.x, y=card.y, W=CARD_W, H=CARD_H;
+  const meta = BRAIN_META[card.era];
+
+  // Shadow
+  gctx.shadowColor='rgba(0,0,0,.4)';
+  gctx.shadowBlur=card.held?20:10;
+  gctx.shadowOffsetY=card.held?8:4;
+
+  // Background
+  gctx.beginPath();
+  roundRect(gctx, x-W/2, y-H/2, W, H, 12);
+  if(card.held){
+    gctx.fillStyle='#1e3a6e';
+    gctx.strokeStyle=meta.color;
+    gctx.lineWidth=2;
+  }else{
+    gctx.fillStyle='#111D2E';
+    gctx.strokeStyle='rgba(255,255,255,.08)';
+    gctx.lineWidth=1;
+  }
+  gctx.fill();
+  gctx.stroke();
+  gctx.shadowColor='transparent';
+
+  // Left color stripe
+  gctx.beginPath();
+  roundRectLeft(gctx, x-W/2, y-H/2, 4, H, 12);
+  gctx.fillStyle=meta.color;
+  gctx.fill();
+
+  // Brain icon small
+  gctx.font='14px serif';
+  gctx.fillText(meta.icon, x-W/2+10, y-H/2+22);
+
+  // Text
+  gctx.fillStyle='rgba(240,244,255,.88)';
+  gctx.font=`${window.innerWidth<400?10:11}px 'Sarabun',sans-serif`;
+  wrapText(gctx, card.text, x-W/2+28, y-H/2+14, W-36, 16);
+
+  // Held: bright pulsing outline so user knows they grabbed it
+  if(card.held){
+    const pulse = 0.6 + 0.4*Math.abs(Math.sin(Date.now()*0.006));
+    // Outer glow
+    gctx.shadowColor = meta.color;
+    gctx.shadowBlur = 24 * pulse;
+    gctx.beginPath();
+    roundRect(gctx, x-W/2-3, y-H/2-3, W+6, H+6, 15);
+    gctx.strokeStyle = meta.light || meta.color;
+    gctx.lineWidth = 3;
+    gctx.stroke();
+    gctx.shadowColor='transparent';
+    gctx.shadowBlur=0;
+    // "HOLDING" label at top
+    gctx.fillStyle='rgba(0,0,0,.55)';
+    gctx.beginPath();
+    roundRect(gctx, x-30, y-H/2-22, 60, 18, 6);
+    gctx.fill();
+    gctx.fillStyle= meta.light || '#fff';
+    gctx.font='bold 11px Inter,sans-serif';
+    gctx.textAlign='center';
+    gctx.fillText('🤌 HOLDING', x, y-H/2-8);
+    gctx.textAlign='left';
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function roundRectLeft(ctx,x,y,w,h,r){
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w,y);
+  ctx.lineTo(x+w,y+h);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxW, lineH){
+  const words = text.split(' ');
+  let line='', linesDrawn=0, maxLines=4;
+  for(let n=0;n<words.length;n++){
+    const testLine=line+words[n]+' ';
+    if(ctx.measureText(testLine).width>maxW && n>0){
+      ctx.fillText(line,x,y+linesDrawn*lineH);
+      line=words[n]+' '; linesDrawn++;
+      if(linesDrawn>=maxLines){ctx.fillText('...',x,y+linesDrawn*lineH);return;}
+    }else line=testLine;
+  }
+  ctx.fillText(line,x,y+linesDrawn*lineH);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FLOAT TEXT + PARTICLES
+// ═══════════════════════════════════════════════════════════════════════
+function floatText(text, x, y, color){
+  const el=document.createElement('div');
+  el.className='float-txt';
+  el.textContent=text;
+  el.style.color=color;
+  // Center on screen horizontally for visibility
+  el.style.left='50%';
+  el.style.top=(window.innerHeight*0.55)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2000);
+}
+
+// screenFlash removed
+
+function spawnParticles(x,y){
+  ['✨','⭐','🌟','💫'].forEach((e,i)=>{
+    const p=document.createElement('div');
+    p.className='ptcl'; p.textContent=e;
+    p.style.left=(x+(-30+Math.random()*60))+'px';
+    p.style.top=(y+(-20+Math.random()*20))+'px';
+    p.style.animationDelay=(i*0.1)+'s';
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1500);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MOUSE / TOUCH FALLBACK
+// ═══════════════════════════════════════════════════════════════════════
+function getPos(e){
+  if(e.touches) return {x:e.touches[0].clientX,y:e.touches[0].clientY};
+  return {x:e.clientX,y:e.clientY};
+}
+
+gameCanvas.addEventListener('mousedown', e=>{
+  if(!gameActive||hands) return;
+  const{x,y}=getPos(e);
+  cursorX=x;cursorY=y;
+  handlePickup(x,y);
+  document.getElementById('cursor').textContent='🤌';
+});
+gameCanvas.addEventListener('mousemove', e=>{
+  if(!gameActive) return;
+  const{x,y}=getPos(e);
+  cursorX=x;cursorY=y;
+  const cursor=document.getElementById('cursor');
+  cursor.style.left=x+'px';cursor.style.top=y+'px';
+  if(dragCard){dragCard.x=x-dragOffX;dragCard.y=y-dragOffY;}
+});
+gameCanvas.addEventListener('mouseup', e=>{
+  if(!gameActive||!dragCard) return;
+  const{x,y}=getPos(e);
+  handleDrop(x,y);
+  document.getElementById('cursor').textContent='🖐️';
+});
+gameCanvas.addEventListener('touchstart', e=>{
+  e.preventDefault();
+  if(!gameActive||hands) return;
+  const{x,y}=getPos(e);
+  handlePickup(x,y);
+},{passive:false});
+gameCanvas.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  if(!gameActive) return;
+  const{x,y}=getPos(e);
+  cursorX=x;cursorY=y;
+  const cursor=document.getElementById('cursor');
+  cursor.style.left=x+'px';cursor.style.top=y+'px';
+  if(dragCard){dragCard.x=x-dragOffX;dragCard.y=y-dragOffY;}
+},{passive:false});
+gameCanvas.addEventListener('touchend', e=>{
+  if(!gameActive||!dragCard) return;
+  const t=e.changedTouches[0];
+  handleDrop(t.clientX,t.clientY);
+},{passive:false});
+
+// ═══════════════════════════════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════════════════════════════
+document.getElementById('start-btn').addEventListener('click', startGame);
+
+function startGame(){
+  // Hide start screen
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('hud').classList.add('show');
+  document.getElementById('zones').classList.add('show');
+
+  // Reset state
+  gameActive=true; timeLeft=90; score=0; correct=0; wrong=0;
+  fallingCards=[]; dragCard=null; activeZoneKeys=[];
+  Object.keys(brainScores).forEach(k=>brainScores[k]=0);
+  document.getElementById('hud-score').textContent='0';
+  document.getElementById('hud-time').textContent='90';
+
+  shufflePool();
+  setTimeout(spawnCard, 500); // initial card after short delay
+
+  // Timer countdown
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    document.getElementById('hud-time').textContent=timeLeft;
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      clearInterval(spawnTimer);
+      gameActive=false;
+      setTimeout(showResult,600);
+    }
+  },1000);
+
+  // Start render
+  animFrame=requestAnimationFrame(renderLoop);
+
+  // Init MediaPipe after a short delay
+  setTimeout(()=>initMediaPipe(),500);
+  // Show pinch debug
+  const dbg=document.getElementById('pinch-debug');
+  if(dbg) dbg.style.display='block';
+}
+
+function showResult(){
+  document.getElementById('hud').classList.remove('show');
+  document.getElementById('zones').classList.remove('show');
+  document.getElementById('result-screen').classList.add('active');
+  const dbg2=document.getElementById('pinch-debug');
+  if(dbg2) dbg2.style.display='none';
+  gctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+  if(animFrame) cancelAnimationFrame(animFrame);
+
+  document.getElementById('r-score').textContent=score;
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+
+  const pct = correct+wrong>0 ? Math.round(correct/(correct+wrong)*100) : 0;
+  const gradeEl = document.getElementById('r-grade');
+  let grade,gc;
+  if(pct>=80){grade='🏆 ยอดเยี่ยม! Brain Master';gc='#16803C';}
+  else if(pct>=60){grade='⭐ ดีมาก! Brain Advisor';gc='#C9A96E';}
+  else{grade='💪 ฝึกต่อไปนะครับ! Brain Trainee';gc='#C2410C';}
+  gradeEl.textContent=grade;
+  gradeEl.style.cssText=`background:${gc}22;color:${gc};border:1px solid ${gc}44;text-align:center;padding:8px;border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;margin-bottom:16px;`;
+
+  // Brain summary
+  const summary = document.getElementById('r-brain-summary');
+  summary.innerHTML='';
+  Object.entries(BRAIN_META).forEach(([key,meta])=>{
+    const div=document.createElement('div');
+    div.className='cert-brain-item';
+    div.innerHTML=`<div class="cert-brain-icon">${meta.icon}</div><div class="cert-brain-name">${meta.name.split(' ')[0]}</div><div class="cert-brain-score">${brainScores[key]||0}</div>`;
+    summary.appendChild(div);
+  });
+
+  spawnParticles(window.innerWidth/2, window.innerHeight/3);
+}
+
+function restartGame(){
+  document.getElementById('result-screen').classList.remove('active');
+  document.getElementById('player-name').value='';
+  fallingCards=[];
+  startGame();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
+initCamera();
+renderLoop(); // run idle loop for cursor
+</script>
+
+<!-- MediaPipe (optional — loads after game starts) -->
+<script>
+// Load MediaPipe lazily after interaction
+window.addEventListener('click', function loadMP(){
+  window.removeEventListener('click', loadMP);
+  const scripts = [
+    'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js',
+    'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js',
+  ];
+  scripts.forEach(src=>{
+    const s=document.createElement('script');
+    s.src=src; s.crossOrigin='anonymous';
+    document.head.appendChild(s);
+  });
+},{once:true});
+</script>
+</body>
+</html>
